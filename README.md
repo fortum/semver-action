@@ -7,7 +7,7 @@ Simple action to calculate next version of a project
 ### calculate next version and create a release
 The following configuration will calculate the next version and create a release (tag head and create changelog since previous release)
 ```
-- uses: fortum/semver-action
+- uses: fortum/semver-action@v1
   id: semver
   with:
     repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -17,7 +17,7 @@ The following configuration will calculate the next version and create a release
 ### calculate next version without releasing
 The following configuration will calculate the next version without tagging
 ```
-- uses: fortum/semver-action
+- uses: fortum/semver-action@v1
   id: semver
   with:
     repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +26,7 @@ The following configuration will calculate the next version without tagging
 
 ### retrieve calculated version
 ```
-- uses: fortum/semver-action
+- uses: fortum/semver-action@v1
   id: semver
   with:
     repo-token: ${{ secrets.GITHUB_TOKEN }}

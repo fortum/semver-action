@@ -1,0 +1,16 @@
+name: 'Semantic Versioning'
+description: 'Tag commits according to semantic versioning'
+inputs:
+  repo-token:
+    required: true
+    description: 'The GITHUB_TOKEN secret'
+  release:
+    required: false
+    default: 'false'
+    description: 'If true creates a new tag and release, otherwise just calculates the next version'
+outputs:
+  next-version:
+    description: 'The next calculated version'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

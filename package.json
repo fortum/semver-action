@@ -1,0 +1,17 @@
+{
+  "name": "semver",
+  "version": "0.0.1",
+  "description": "Tag commits according to semantic versioning",
+  "main": "dist/index.js",
+  "author": "Fortum",
+  "scripts": {
+    "package": "ncc build src/index.js -o dist"
+  },
+  "dependencies": {
+    "@actions/core": "^1.0.0",
+    "@actions/github": "^2.1.1"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.20.5"
+  }
+}

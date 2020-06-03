@@ -69,7 +69,7 @@ async function run() {
         const prefix = core.getInput('version-prefix');
         const client = new github.GitHub(token);
 
-        const rawVersion = await getLastRelease(client, prefix);
+        const rawVersion = prefix + await getLastRelease(client, prefix);
         const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref);
         core.setOutput("next-version", nextVersion);
 

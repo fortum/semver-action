@@ -88,6 +88,8 @@ async function run() {
             ref: `tags/${rawVersion}`,
         });
 
+        console.log(JSON.stringify((lastTag)));
+
         const changeLog = await buildChangeLog(client, lastTag.data.object.sha, nextVersion);
         await release(client, changeLog, nextVersion);
     } catch (error) {

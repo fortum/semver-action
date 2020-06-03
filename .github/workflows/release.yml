@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: fortum/checkout@v2
       - name: release
-        uses: './'
-          id: semver
-          with:
-            repo-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./
+        id: semver
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: debug
         run: echo ${{steps.semver.outputs.next-version}}

@@ -1,0 +1,18 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: fortum/checkout@v2
+            - uses: './'
+                id: semver
+                with:
+                repo-token: ${{ secrets.GITHUB_TOKEN }}
+            - name: debug
+              run: echo ${{steps.semver.outputs.next-version}}

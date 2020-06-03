@@ -4,12 +4,36 @@ on:
   push:
     branches:
       - 'master'
+    paths-ignore:
+      - 'dist/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: fortum/checkout@v2
+      - name: Retrieve node_modules' cache
+        id: node-modules-cache
+        uses: fortum/cache@v1
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install node
+        uses: fortum/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Install dependencies
+        run: 'npm install'
+      - name: compile
+        run: 'npm run package'
+      - name: commit package
+        run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git commit -am "compiled action"
+          git push
       - name: release
         uses: ./
         id: semver

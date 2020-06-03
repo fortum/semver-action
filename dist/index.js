@@ -8576,7 +8576,8 @@ async function getLastRelease(client, prefix) {
     });
     const rawVersion = lastRelease.data.tag_name;
 
-    rawVersion.replace(new RegExp("^" + prefix, "g"), "");
+    console.log(rawVersion.replace(new RegExp("^" + prefix, "g"), ""));
+    console.log(rawVersion);
     if (!(rawVersion && semverRexEx.test(rawVersion))) {
         core.warning(`never versioned before or ${rawVersion} is not a valid semver tag`);
         return "0.0.0";

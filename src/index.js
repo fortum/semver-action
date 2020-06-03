@@ -8,10 +8,8 @@ async function getLastRelease(client, prefix) {
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
     });
-    const rawVersion = lastRelease.data.tag_name;
+    const rawVersion = lastRelease.data.tag_name.replace(new RegExp("^" + prefix, "g"), "");
 
-    console.log(rawVersion.replace(new RegExp("^" + prefix, "g"), ""));
-    console.log(rawVersion);
     if (!(rawVersion && semverRexEx.test(rawVersion))) {
         core.warning(`never versioned before or ${rawVersion} is not a valid semver tag`);
         return "0.0.0";
@@ -72,8 +70,8 @@ async function run() {
         const client = new github.GitHub(token);
 
         const rawVersion = await getLastRelease(client, prefix);
-        const nextVersion = await calculateNextVersion(rawVersion, github.context.payload.ref);
-        core.setOutput("next-version", prefix + nextVersion);
+        const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref);
+        core.setOutput("next-version", nextVersion);
 
         if (core.getInput('release') === 'false') {
             return;

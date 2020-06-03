@@ -3,13 +3,14 @@ const github = require('@actions/github');
 
 const semverRexEx = /^[0-9]+.[0-9]+.[0-9]+$/
 
-async function getLastRelease(client) {
+async function getLastRelease(client, prefix) {
     const lastRelease = await client.repos.getLatestRelease({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
     });
     const rawVersion = lastRelease.data.tag_name;
 
+    rawVersion.replace(new RegExp("^" + prefix, "g"), "");
     if (!(rawVersion && semverRexEx.test(rawVersion))) {
         core.warning(`never versioned before or ${rawVersion} is not a valid semver tag`);
         return "0.0.0";
@@ -58,7 +59,7 @@ async function calculateNextVersion(rawVersion, rawBranch) {
     let [major, minor, path] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
-    const nextVersion =  [major, minor, path].join(".");
+    const nextVersion = [major, minor, path].join(".");
     console.log("Next version: " + nextVersion);
     return branch === "master" ? nextVersion : branch + "-" + nextVersion;
 }
@@ -66,11 +67,12 @@ async function calculateNextVersion(rawVersion, rawBranch) {
 async function run() {
     try {
         const token = core.getInput('repo-token', {required: true});
+        const prefix = core.getInput('version-prefix');
         const client = new github.GitHub(token);
 
-        const rawVersion = await getLastRelease(client);
+        const rawVersion = await getLastRelease(client, prefix);
         const nextVersion = await calculateNextVersion(rawVersion, github.context.payload.ref);
-        core.setOutput("next-version", nextVersion);
+        core.setOutput("next-version", prefix + nextVersion);
 
         if (core.getInput('release') === 'false') {
             return;

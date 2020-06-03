@@ -8,6 +8,10 @@ inputs:
     required: false
     default: 'false'
     description: 'If true creates a new tag and release, otherwise just calculates the next version'
+  version-prefix:
+    required: false
+    default: ''
+    description: 'The prefix to be used on tags. i.e. v for v1.0.1'
 outputs:
   next-version:
     description: 'The next calculated version'

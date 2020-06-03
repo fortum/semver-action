@@ -15,5 +15,6 @@ jobs:
         id: semver
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          version-prefix: v
       - name: debug
         run: echo ${{steps.semver.outputs.next-version}}

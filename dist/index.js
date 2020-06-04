@@ -8590,12 +8590,11 @@ async function buildChangeLog(client, lastTaggedCommitSha, nextVersion) {
         repo: github.context.repo.repo,
         per_page: 100
     });
-
     const commits = commitsSinceLastTag.data;
     let i = 0;
     let changeLog = `# Version ${nextVersion}\n`;
     changeLog += "changes:\n";
-    while (lastTaggedCommitSha !== commits[i].sha) {
+    while (commits[i] && lastTaggedCommitSha !== commits[i].sha) {
         changeLog += `* ${commits[i].commit.message}\n`;
         i++;
     }
@@ -8608,7 +8607,7 @@ async function release(client, changeLog, nextVersion) {
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         ref: `refs/tags/${nextVersion}`,
-        sha: github.context.sha
+        sha: core.getInput('sha').length === 0 ? github.context.sha : core.getInput('sha')
     });
     await client.repos.createRelease({
         owner: github.context.repo.owner,
@@ -8636,7 +8635,8 @@ async function run() {
         const client = new github.GitHub(token);
 
         const rawVersion = await getLastRelease(client, prefix);
-        const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref);
+        const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref, prefix);
+        console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);
 
         if (core.getInput('release') === 'false') {
@@ -8652,10 +8652,8 @@ async function run() {
         const lastTag = await client.git.getRef({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            ref: `tags/${rawVersion}`,
+            ref: `tags/${prefix + rawVersion}`,
         });
-
-        console.log(JSON.stringify(lastTag));
 
         const changeLog = await buildChangeLog(client, lastTag.data.object.sha, nextVersion);
         await release(client, changeLog, nextVersion);

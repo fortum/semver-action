@@ -12,6 +12,10 @@ inputs:
     required: false
     default: ''
     description: 'The prefix to be used on tags. i.e. v for v1.0.1'
+  sha:
+    required: false
+    default: ''
+    description: 'Sha identifier of the commit to release, if not provided then the commit triggering the action is used'
 outputs:
   next-version:
     description: 'The next calculated version'

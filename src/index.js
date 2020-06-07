@@ -2,17 +2,28 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 const semverRexEx = /^[0-9]+.[0-9]+.[0-9]+$/
+const defaultVersion = "0.0.0";
 
 async function getLastRelease(client, prefix) {
-    const lastRelease = await client.repos.getLatestRelease({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-    });
-    const rawVersion = lastRelease.data.tag_name.replace(new RegExp("^" + prefix, "g"), "");
+    let rawVersion;
+    try {
+        const lastRelease = await client.repos.getLatestRelease({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+        });
+        rawVersion = lastRelease.data.tag_name.replace(new RegExp("^" + prefix, "g"), "");
+    } catch (e) {
+        if (e.status === 404) {
+            core.warning(`This appears to be the first release, starting from ${defaultVersion}`);
+            rawVersion = defaultVersion
+        } else {
+            core.warning(`Unexpected error while retrieving latest release: ${JSON.stringify(e)}`);
+            throw e;
+        }
+    }
 
     if (!(rawVersion && semverRexEx.test(rawVersion))) {
-        core.warning(`never versioned before or ${rawVersion} is not a valid semver tag`);
-        return "0.0.0";
+        throw new Error(`Cannot calculate next version starting from version [${rawVersion}]`)
     }
 
     return rawVersion;
@@ -77,7 +88,7 @@ async function run() {
             return;
         }
 
-        if (rawVersion === "0.0.0") {
+        if (rawVersion === defaultVersion) {
             const changeLog = await buildChangeLog(client, null, nextVersion);
             await release(client, changeLog, nextVersion);
             return;

@@ -8580,6 +8580,13 @@ async function getLastRelease(client, prefix) {
         rawVersion = lastRelease.data.tag_name.replace(new RegExp("^" + prefix, "g"), "");
     } catch (e) {
         if (e.status === 404) {
+            const tags = await client.repos.listTags({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+            });
+            if (tags.data.length > 0) {
+                throw Error("Tags are present but none is marked as release, please mark the last one as release and try again");
+            }
             core.warning(`This appears to be the first release, starting from ${defaultVersion}`);
             rawVersion = defaultVersion
         } else {
@@ -8589,7 +8596,7 @@ async function getLastRelease(client, prefix) {
     }
 
     if (!(rawVersion && semverRexEx.test(rawVersion))) {
-        throw new Error(`Cannot calculate next version starting from version [${rawVersion}]`)
+        throw Error(`Cannot calculate next version starting from version [${rawVersion}]`)
     }
 
     return rawVersion;

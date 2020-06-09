@@ -8637,7 +8637,7 @@ async function release(client, changeLog, nextVersion) {
 }
 
 async function calculateNextVersion(rawVersion, rawBranch) {
-    const [branch] = rawBranch.split("/").slice(-1);
+    const branch = rawBranch.replace(new RegExp("^refs/heads|\/", "g"), "");
     let [major, minor, path] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;

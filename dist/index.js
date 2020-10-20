@@ -8685,8 +8685,8 @@ async function getLastRelease(client, prefix) {
                 repo: github.context.repo.repo,
                 per_page: 100,
             });
-            console.log(JSON.stringify(tags))
-            const candidates = tags
+
+            const candidates = tags.data
                 .filter(tag => versionMatcher.test(tag.name))
                 .map(tag => tag.name.replace(versionMatcher, ""));
 

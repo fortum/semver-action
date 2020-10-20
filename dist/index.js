@@ -8735,14 +8735,14 @@ async function release(client, changeLog, nextVersion) {
     });
 }
 
-async function calculateNextVersion(rawVersion, rawBranch) {
+async function calculateNextVersion(rawVersion, rawBranch, releaseBranch) {
     const branch = rawBranch.replace(new RegExp("^refs/heads|\/", "g"), "");
     let [major, minor, path] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
     const nextVersion = [major, minor, path].join(".");
     console.log("Next version: " + nextVersion);
-    return branch === "master" ? nextVersion : branch + "-" + nextVersion;
+    return branch === releaseBranch ? nextVersion : branch + "-" + nextVersion;
 }
 
 async function run() {
@@ -8750,9 +8750,10 @@ async function run() {
         const token = core.getInput('repo-token', {required: true});
         const prefix = core.getInput('version-prefix');
         const client = new github.GitHub(token);
+        const releaseBranch = core.getInput('release-branch');
 
         const rawVersion = await getLastRelease(client, prefix);
-        const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref, prefix);
+        const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref, releaseBranch);
         console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);
 

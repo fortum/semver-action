@@ -16,6 +16,10 @@ inputs:
     required: false
     default: ''
     description: 'Sha identifier of the commit to release, if not provided then the commit triggering the action is used'
+  release-branch:
+    required: false
+    default: 'master'
+    description: 'The branch from which releases are allowed (default master)'
 outputs:
   next-version:
     description: 'The next calculated version'

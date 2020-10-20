@@ -24,7 +24,7 @@ async function getLastRelease(client, prefix) {
                 .filter(tag => verionMatcher.test(tag.name))
                 .map(tag => tag.name.replace(verionMatcher, ""));
 
-            rawVersion = candidates[0] ?? defaultVersion;
+            rawVersion = candidates[0] || defaultVersion;
         }
         
     } catch (e) {

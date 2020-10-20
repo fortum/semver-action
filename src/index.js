@@ -6,12 +6,27 @@ const defaultVersion = "0.0.0";
 
 async function getLastRelease(client, prefix) {
     let rawVersion;
+    const verionMatcher = new RegExp("^" + prefix, "g");
     try {
         const lastRelease = await client.repos.getLatestRelease({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
         });
-        rawVersion = lastRelease.data.tag_name.replace(new RegExp("^" + prefix, "g"), "");
+        if (verionMatcher.test(lastRelease.data.tag_name)) {
+            rawVersion = lastRelease.data.tag_name.replace(verionMatcher, "");
+        } else {
+            const tags = await client.repos.listTags({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                per_page: 100,
+            });
+            const candidates = tags
+                .filter(tag => verionMatcher.test(tag.name))
+                .map(tag => tag.name.replace(verionMatcher, ""));
+
+            rawVersion = candidates[0] ?? defaultVersion;
+        }
+        
     } catch (e) {
         if (e.status === 404) {
             const tags = await client.repos.listTags({

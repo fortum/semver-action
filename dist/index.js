@@ -8776,7 +8776,7 @@ async function run() {
         const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, releaseBranch);
         console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);
-        core.setOutput("reference", branch === releaseBranch ? nextVersion : branch);
+        core.setOutput("reference", currentBranch === releaseBranch ? nextVersion : currentBranch);
 
         if (core.getInput('release') === 'false') {
             return;

@@ -23,6 +23,8 @@ inputs:
 outputs:
   next-version:
     description: 'The next calculated version'
+  reference:
+    description: 'The tag name if release=true otherwise the branch name'
 runs:
   using: 'node12'
   main: 'dist/index.js'

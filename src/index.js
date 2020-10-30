@@ -86,8 +86,11 @@ async function release(client, changeLog, nextVersion) {
     });
 }
 
-async function calculateNextVersion(rawVersion, rawBranch, releaseBranch) {
-    const branch = rawBranch.replace(new RegExp("^refs/heads|\/", "g"), "");
+function extractBranch(rawBranch) {
+    return rawBranch.replace(new RegExp("^refs/heads|\/", "g"), "");
+}
+
+async function calculateNextVersion(rawVersion, branch, releaseBranch) {
     let [major, minor, path] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
@@ -104,9 +107,11 @@ async function run() {
         const releaseBranch = core.getInput('release-branch');
 
         const rawVersion = await getLastRelease(client, prefix);
-        const nextVersion = prefix + await calculateNextVersion(rawVersion, github.context.payload.ref, releaseBranch);
+        const currentBranch = extractBranch(github.context.payload.ref);
+        const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, releaseBranch);
         console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);
+        core.setOutput("reference", branch === releaseBranch ? nextVersion : branch);
 
         if (core.getInput('release') === 'false') {
             return;

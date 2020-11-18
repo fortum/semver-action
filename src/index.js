@@ -91,10 +91,10 @@ function extractBranch(rawBranch) {
 }
 
 async function calculateNextVersion(rawVersion, branch, releaseBranch) {
-    let [major, minor, path] = rawVersion.split(".").map(part => parseInt(part));
+    let [major, minor, patch] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
-    const nextVersion = [major, minor, path].join(".");
+    const nextVersion = [major, minor, 0].join(".");
     console.log("Next version: " + nextVersion);
     return branch === releaseBranch ? nextVersion : branch + "-" + nextVersion;
 }

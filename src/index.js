@@ -96,7 +96,7 @@ async function calculateNextVersion(rawVersion, branch, releaseBranch) {
     minor += 1;
     const nextVersion = [major, minor, 0].join(".");
     console.log("Next version: " + nextVersion);
-    return branch === releaseBranch ? nextVersion : branch + "-" + nextVersion;
+    return branch === releaseBranch ? nextVersion : branch + "-" + nextVersion + "-SNAPSHOT";
 }
 
 async function run() {

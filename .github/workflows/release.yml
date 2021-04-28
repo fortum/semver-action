@@ -11,17 +11,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: fortum/checkout@v2
+      - uses: actions/checkout@v2
       - name: Retrieve node_modules' cache
         id: node-modules-cache
-        uses: fortum/cache@v1
+        uses: actions/cache@v2
         with:
           path: |
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install node
-        uses: fortum/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '12.x'
       - name: Install dependencies

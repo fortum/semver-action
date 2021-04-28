@@ -37,5 +37,7 @@ The following configuration will calculate the next version without tagging
 ```
 
 ## notes
-When invoking semveraction on branch master the version will be pure semver (i.e. 1.2.0)   
-When invoking from aby other branch the version will be `branch_name-1.2.0`
+When invoking semver-action on branch master the version will be pure semver (i.e. 1.2.0)   
+When invoking from any other branch the version will be `branch_name-1.2.0`
+
+check `action.yml` to find the list of all parameters and outputs

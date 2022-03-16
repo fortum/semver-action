@@ -107,7 +107,7 @@ async function run() {
         const releaseBranch = core.getInput('release-branch');
 
         const rawVersion = await getLastRelease(client, prefix);
-        const currentBranch = extractBranch(github.context.payload.ref || github.head_ref);
+        const currentBranch = extractBranch(github.context.payload.ref || github.context.head_ref);
         const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, releaseBranch);
         console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);

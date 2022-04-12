@@ -8718,6 +8718,7 @@ async function getLastRelease(client, prefix) {
 }
 
 async function buildChangeLog(client, lastTaggedCommitSha, nextVersion) {
+    console.log(`Generating changelog since commit ${lastTaggedCommitSha} ...`);
     const commitsSinceLastTag = await client.repos.listCommits({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
@@ -8731,11 +8732,12 @@ async function buildChangeLog(client, lastTaggedCommitSha, nextVersion) {
         changeLog += `* ${commits[i].commit.message}\n`;
         i++;
     }
-
+    console.log(`Generated changelog since commit ${lastTaggedCommitSha}`);
     return changeLog;
 }
 
 async function release(client, changeLog, nextVersion) {
+    console.log(`Creating release for version ${nextVersion} ...`);
     await client.git.createRef({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
@@ -8749,6 +8751,7 @@ async function release(client, changeLog, nextVersion) {
         name: `Version ${nextVersion}`,
         body: changeLog
     });
+    console.log(`Created release for version ${nextVersion}`);
 }
 
 function extractBranch(rawBranch) {

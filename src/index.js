@@ -72,13 +72,16 @@ async function buildChangeLog(client, lastTaggedCommitSha, nextVersion) {
 }
 
 async function release(client, changeLog, nextVersion) {
-    console.log(`Creating release for version ${nextVersion} ...`);
+    console.log(`Releasing version ${nextVersion} ...`);
+    const sha = core.getInput('sha').length === 0 ? github.context.sha : core.getInput('sha');
+    console.log(`- Adding tag ${nextVersion} on commit ${sha}`);
     await client.git.createRef({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         ref: `refs/tags/${nextVersion}`,
-        sha: core.getInput('sha').length === 0 ? github.context.sha : core.getInput('sha')
+        sha: sha
     });
+    console.log(`- Tag ${nextVersion} added on commit ${sha}`);
     await client.repos.createRelease({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,

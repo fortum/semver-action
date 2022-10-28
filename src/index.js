@@ -130,7 +130,7 @@ async function run() {
     try {
         const token = core.getInput('repo-token', {required: true});
         const prefix = core.getInput('version-prefix');
-        const client = new GitHub(token);
+        const client = github.getOctokit(token);
 
         const rawVersion = await getLastRelease(client, prefix);
         const currentBranch = extractBranch(github.context.payload.ref || github.context.payload.pull_request.head.ref);

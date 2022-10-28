@@ -114,12 +114,13 @@ function shouldRelease(currentBranch) {
     }
 }
 
-async function calculateNextVersion(rawVersion, branch, shouldRelease) {
+async function calculateNextVersion(rawVersion, branch, shouldRelease, prefix) {
     let [major, minor, patch] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
     const nextVersionUnqualified = [major, minor, 0].join(".");
-    const nextVersion = shouldRelease ? nextVersionUnqualified : branch + "-" + nextVersionUnqualified + "-SNAPSHOT";
+    const nextVersionNotPrefixed = shouldRelease ? nextVersionUnqualified : branch + "-" + nextVersionUnqualified + "-SNAPSHOT";
+    const nextVersion = prefix + nextVersionNotPrefixed;
     console.log("Next version: " + nextVersion);
     return nextVersion;
 }
@@ -133,7 +134,7 @@ async function run() {
         const rawVersion = await getLastRelease(client, prefix);
         const currentBranch = extractBranch(github.context.payload.ref || github.context.payload.pull_request.head.ref);
         const isRelease = shouldRelease(currentBranch);
-        const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, isRelease);
+        const nextVersion = await calculateNextVersion(rawVersion, currentBranch, isRelease, prefix);
         core.setOutput("next-version", nextVersion);
         core.setOutput("reference", isRelease ? nextVersion : currentBranch);
 

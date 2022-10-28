@@ -27,7 +27,7 @@ jobs:
           git config --global user.name 'Github Actions'
           git config --global user.email 'github-actions@users.noreply.github.com'
           git diff --quiet && git diff --staged --quiet || (git commit -am 'compiled action' && git push)
-          echo "##[set-output name=sha;]$(git rev-parse HEAD)"
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: release
         uses: ./
         id: semver

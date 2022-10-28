@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const { GitHub } = require("@actions/github/lib/utils");
 
 const semverRexEx = /^[0-9]+.[0-9]+.[0-9]+$/
 const defaultVersion = "0.0.0";
@@ -9,12 +8,12 @@ async function getLastRelease(client, prefix) {
     let rawVersion;
     const versionMatcher = new RegExp("^" + prefix, "g");
     try {
-        console.log("getting last release");
-        const lastRelease = await client.repos.getLatestRelease({
+        console.log("getting last release"); // todo: remove
+        const lastRelease = await client.rest.repos.getLatestRelease({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
         });
-        console.log(JSON.stringify(lastRelease));
+        console.log(JSON.stringify(lastRelease)); // todo: remove
         if (versionMatcher.test(lastRelease.data.tag_name)) {
             rawVersion = lastRelease.data.tag_name.replace(versionMatcher, "");
         } else {

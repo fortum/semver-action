@@ -96,13 +96,30 @@ function extractBranch(rawBranch) {
     return rawBranch.replace(new RegExp("^refs/heads|\/", "g"), "");
 }
 
-async function calculateNextVersion(rawVersion, branch, releaseBranch) {
+function deprecatedShouldRelease(currentBranch) {
+    const releaseBranch = core.getInput('release-branch');
+    if (releaseBranch && releaseBranch !== '') {
+        console.warn("release-branch is DEPRECATED, use release instead!");
+    }
+
+    return releaseBranch === currentBranch;
+}
+
+function shouldRelease(currentBranch) {
+    if (core.getInput('release') === 'true') {
+        return true;
+    } else {
+        return deprecatedShouldRelease(currentBranch);
+    }
+}
+
+async function calculateNextVersion(rawVersion, branch, shouldRelease) {
     let [major, minor, patch] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
     const nextVersion = [major, minor, 0].join(".");
     console.log("Next version: " + nextVersion);
-    return branch === releaseBranch ? nextVersion : branch + "-" + nextVersion + "-SNAPSHOT";
+    return shouldRelease ? nextVersion : branch + "-" + nextVersion + "-SNAPSHOT";
 }
 
 async function run() {
@@ -110,14 +127,14 @@ async function run() {
         const token = core.getInput('repo-token', {required: true});
         const prefix = core.getInput('version-prefix');
         const client = new github.GitHub(token);
-        const releaseBranch = core.getInput('release-branch');
 
         const rawVersion = await getLastRelease(client, prefix);
         const currentBranch = extractBranch(github.context.payload.ref || github.context.payload.pull_request.head.ref);
-        const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, releaseBranch);
+        const isRelease = shouldRelease(currentBranch);
+        const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, isRelease);
         console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);
-        core.setOutput("reference", currentBranch === releaseBranch ? nextVersion : currentBranch);
+        core.setOutput("reference", isRelease ? nextVersion : currentBranch);
 
         if (core.getInput('release') === 'false') {
             return;

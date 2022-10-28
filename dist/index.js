@@ -6048,6 +6048,7 @@ async function getLastRelease(client, prefix) {
     let rawVersion;
     const versionMatcher = new RegExp("^" + prefix, "g");
     try {
+        console.log("getting last release");
         const lastRelease = await client.repos.getLatestRelease({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,

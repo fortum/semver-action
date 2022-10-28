@@ -13,6 +13,7 @@ async function getLastRelease(client, prefix) {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
         });
+        console.log(JSON.stringify(lastRelease));
         if (versionMatcher.test(lastRelease.data.tag_name)) {
             rawVersion = lastRelease.data.tag_name.replace(versionMatcher, "");
         } else {

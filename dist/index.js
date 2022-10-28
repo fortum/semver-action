@@ -6039,6 +6039,7 @@ module.exports = require("util");
 
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
+const { GitHub } = __webpack_require__(521);
 
 const semverRexEx = /^[0-9]+.[0-9]+.[0-9]+$/
 const defaultVersion = "0.0.0";
@@ -6145,10 +6146,11 @@ function deprecatedShouldRelease(currentBranch) {
 }
 
 function shouldRelease(currentBranch) {
+    const dShouldRelease = deprecatedShouldRelease(currentBranch);
     if (core.getInput('release') === 'true') {
         return true;
     } else {
-        return deprecatedShouldRelease(currentBranch);
+        return dShouldRelease;
     }
 }
 
@@ -6165,7 +6167,7 @@ async function run() {
     try {
         const token = core.getInput('repo-token', {required: true});
         const prefix = core.getInput('version-prefix');
-        const client = new github.GitHub(token);
+        const client = new GitHub(token);
 
         const rawVersion = await getLastRelease(client, prefix);
         const currentBranch = extractBranch(github.context.payload.ref || github.context.payload.pull_request.head.ref);

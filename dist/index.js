@@ -6047,16 +6047,14 @@ async function getLastRelease(client, prefix) {
     let rawVersion;
     const versionMatcher = new RegExp("^" + prefix, "g");
     try {
-        console.log("getting last release"); // todo: remove
         const lastRelease = await client.rest.repos.getLatestRelease({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
         });
-        console.log(JSON.stringify(lastRelease)); // todo: remove
         if (versionMatcher.test(lastRelease.data.tag_name)) {
             rawVersion = lastRelease.data.tag_name.replace(versionMatcher, "");
         } else {
-            const tags = await client.repos.listTags({
+            const tags = await client.rest.repos.listTags({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 per_page: 100,
@@ -6071,7 +6069,7 @@ async function getLastRelease(client, prefix) {
         
     } catch (e) {
         if (e.status === 404) {
-            const tags = await client.repos.listTags({
+            const tags = await client.rest.repos.listTags({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
             });
@@ -6095,7 +6093,7 @@ async function getLastRelease(client, prefix) {
 
 async function buildChangeLog(client, lastTaggedCommitSha, nextVersion) {
     console.log(`Generating changelog since commit ${lastTaggedCommitSha} ...`);
-    const commitsSinceLastTag = await client.repos.listCommits({
+    const commitsSinceLastTag = await client.rest.repos.listCommits({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         per_page: 100
@@ -6116,14 +6114,14 @@ async function release(client, changeLog, nextVersion) {
     console.log(`Releasing version ${nextVersion} ...`);
     const sha = core.getInput('sha').length === 0 ? github.context.sha : core.getInput('sha');
     console.log(`- Adding tag ${nextVersion} on commit ${sha}`);
-    await client.git.createRef({
+    await client.rest.git.createRef({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         ref: `refs/tags/${nextVersion}`,
         sha: sha
     });
     console.log(`- Tag ${nextVersion} added on commit ${sha}`);
-    await client.repos.createRelease({
+    await client.rest.repos.createRelease({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         tag_name: nextVersion,
@@ -6159,9 +6157,10 @@ async function calculateNextVersion(rawVersion, branch, shouldRelease) {
     let [major, minor, patch] = rawVersion.split(".").map(part => parseInt(part));
     console.log("Previous version: " + rawVersion)
     minor += 1;
-    const nextVersion = [major, minor, 0].join(".");
+    const nextVersionUnqualified = [major, minor, 0].join(".");
+    const nextVersion = shouldRelease ? nextVersionUnqualified : branch + "-" + nextVersionUnqualified + "-SNAPSHOT";
     console.log("Next version: " + nextVersion);
-    return shouldRelease ? nextVersion : branch + "-" + nextVersion + "-SNAPSHOT";
+    return nextVersion;
 }
 
 async function run() {
@@ -6174,7 +6173,6 @@ async function run() {
         const currentBranch = extractBranch(github.context.payload.ref || github.context.payload.pull_request.head.ref);
         const isRelease = shouldRelease(currentBranch);
         const nextVersion = prefix + await calculateNextVersion(rawVersion, currentBranch, isRelease);
-        console.log("prefixed next version: " + nextVersion);
         core.setOutput("next-version", nextVersion);
         core.setOutput("reference", isRelease ? nextVersion : currentBranch);
 
@@ -6188,7 +6186,7 @@ async function run() {
             return;
         }
 
-        const lastTag = await client.git.getRef({
+        const lastTag = await client.rest.git.getRef({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             ref: `tags/${prefix + rawVersion}`,

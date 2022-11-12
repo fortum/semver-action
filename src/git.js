@@ -1,8 +1,10 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 
-async function getLastTag(prefix) {
-    const tagPattern = new RegExp(`^${prefix}[0-9]+.[0-9]+.[0-9]+$`);
+async function getLastTagOrDefault(prefix) {
+    const defaultTag = "0.0.0";
+    const tagPrefix = prefix || "";
+    const tagPattern = new RegExp(`^${tagPrefix}[0-9]+.[0-9]+.[0-9]+$`);
     const token = core.getInput('repo-token', {required: true});
     const client = github.getOctokit(token);
 
@@ -15,9 +17,9 @@ async function getLastTag(prefix) {
     const candidates = tags.data
         .filter(tag => tagPattern.test(tag.name))
         .map(tag => tag.name);
-        //.map(tag => tag.name.replace(versionMatcher, ""));
 
-    console.log(JSON.stringify(candidates));
+    const lastTag = candidates[0] || `${tagPrefix}${defaultTag}`;
+    console.log(lastTag);
 }
 
-getLastTag("v");
+getLastTagOrDefault();

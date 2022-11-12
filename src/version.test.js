@@ -62,7 +62,7 @@ describe("shouldRelease", () => {
 
     it("should calculate then next version for a branch", () => {
         const result = calculateNextVersion({...params, shouldRelease: false, branch: "feature"});
-        expect(result).toBe("vfeature-1.22.0-SNAPSHOT");
+        expect(result).toBe("feature-v1.22.0-SNAPSHOT");
     });
 
     it("should bump the major version when the current major version is lower than the one configured", () => {

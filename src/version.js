@@ -20,7 +20,7 @@ function shouldRelease(currentBranch) {
 }
 
 function packVersion(params) {
-    const versionPrefix = params.shouldRelease ? params.prefix : `${params.prefix}${params.branch}-`;
+    const versionPrefix = params.shouldRelease ? params.prefix : `${params.branch}-${params.prefix}`;
     const versionPostfix = params.shouldRelease ? "" : "-SNAPSHOT";
     return `${versionPrefix}${params.version}${versionPostfix}`;
 }

@@ -56,10 +56,9 @@ async function run() {
             sha: core.getInput("sha") === "" ? github.context.sha : core.getInput("sha"),
             version: nextVersion
         });
-
     } catch (error) {
         core.setFailed(error.message);
     }
 }
 
-module.exports = { run };
+module.exports = {run};

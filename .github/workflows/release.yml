@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: test
-        run: npm install
+        run: npm test
       - name: compile
         run: npm run package
       - name: commit package

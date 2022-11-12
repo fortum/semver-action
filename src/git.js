@@ -36,4 +36,4 @@ async function tag(client, params) {
     });
 }
 
-module.exports = { getLastTagOrDefault, extractBranch, tag };
+module.exports = {getLastTagOrDefault, extractBranch, tag};

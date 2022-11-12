@@ -6,7 +6,6 @@ function legacyShouldRelease(currentBranch) {
     if (releaseBranch && releaseBranch !== '') {
         core.warning("release-branch is DEPRECATED, use release instead!");
     }
-
     return releaseBranch === currentBranch;
 }
 
@@ -26,6 +25,7 @@ function packVersion(params) {
 }
 
 const SEMVER_REGEX = /([0-9]+.[0-9]+.[0-9]+)/
+
 function calculateNextVersion(params) {
     core.debug(`calculateNextVersion(${JSON.stringify(params)})`);
     const lastVersion = params.lastTag.match(SEMVER_REGEX)[1];
@@ -48,4 +48,4 @@ function calculateNextVersion(params) {
     });
 }
 
-module.exports = { shouldRelease, calculateNextVersion };
+module.exports = {shouldRelease, calculateNextVersion};

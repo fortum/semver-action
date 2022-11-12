@@ -9568,13 +9568,12 @@ async function run() {
             sha: core.getInput("sha") === "" ? github.context.sha : core.getInput("sha"),
             version: nextVersion
         });
-
     } catch (error) {
         core.setFailed(error.message);
     }
 }
 
-module.exports = { run };
+module.exports = {run};
 
 
 /***/ }),
@@ -9620,7 +9619,7 @@ async function tag(client, params) {
     });
 }
 
-module.exports = { getLastTagOrDefault, extractBranch, tag };
+module.exports = {getLastTagOrDefault, extractBranch, tag};
 
 
 /***/ }),
@@ -9636,7 +9635,6 @@ function legacyShouldRelease(currentBranch) {
     if (releaseBranch && releaseBranch !== '') {
         core.warning("release-branch is DEPRECATED, use release instead!");
     }
-
     return releaseBranch === currentBranch;
 }
 
@@ -9656,6 +9654,7 @@ function packVersion(params) {
 }
 
 const SEMVER_REGEX = /([0-9]+.[0-9]+.[0-9]+)/
+
 function calculateNextVersion(params) {
     core.debug(`calculateNextVersion(${JSON.stringify(params)})`);
     const lastVersion = params.lastTag.match(SEMVER_REGEX)[1];
@@ -9678,7 +9677,7 @@ function calculateNextVersion(params) {
     });
 }
 
-module.exports = { shouldRelease, calculateNextVersion };
+module.exports = {shouldRelease, calculateNextVersion};
 
 
 /***/ }),

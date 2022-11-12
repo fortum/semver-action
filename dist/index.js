@@ -9531,7 +9531,7 @@ async function run() {
         const majorVersion = core.getInput('major-version');
 
         // retrieves last tag matching the prefix
-        const lastTag = getLastTagOrDefault(client, {
+        const lastTag = await getLastTagOrDefault(client, {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             prefix: prefix
@@ -9580,9 +9580,12 @@ module.exports = { run };
 /***/ }),
 
 /***/ 109:
-/***/ ((module) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(2186);
 
 async function getLastTagOrDefault(client, params) {
+    core.debug(`getLastTagOrDefault(${JSON.stringify(params)})`);
     const defaultTag = "0.0.0";
     const tagPrefix = params.prefix || "";
     const tagPattern = new RegExp(`^${tagPrefix}[0-9]+.[0-9]+.[0-9]+$`);
@@ -9593,9 +9596,13 @@ async function getLastTagOrDefault(client, params) {
         per_page: 100,
     });
 
+    core.debug(`tags response: ${JSON.stringify(tags)}`);
+
     const candidates = tags.data
         .filter(tag => tagPattern.test(tag.name))
         .map(tag => tag.name);
+
+    core.debug(`tags matching prefix: ${JSON.stringify(candidates)}`);
 
     return candidates[0] || `${tagPrefix}${defaultTag}`;
 }
@@ -9643,13 +9650,14 @@ function shouldRelease(currentBranch) {
 }
 
 function packVersion(params) {
-    const versionPrefix = params.shouldRelease ? params.prefix : `${params.prefix}${params.branch}-`;
+    const versionPrefix = params.shouldRelease ? params.prefix : `${params.branch}-${params.prefix}`;
     const versionPostfix = params.shouldRelease ? "" : "-SNAPSHOT";
     return `${versionPrefix}${params.version}${versionPostfix}`;
 }
 
 const SEMVER_REGEX = /([0-9]+.[0-9]+.[0-9]+)/
 function calculateNextVersion(params) {
+    core.debug(`calculateNextVersion(${JSON.stringify(params)})`);
     const lastVersion = params.lastTag.match(SEMVER_REGEX)[1];
     if (!lastVersion) {
         throw `${params.lastTag} is not a valid tag!`;

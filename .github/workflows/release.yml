@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - 'master'
+      - '**'
     paths-ignore:
       - 'dist/**'
 
@@ -17,17 +17,17 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - name: Install dependencies
-        run: 'npm install'
-      - name: compile
-        run: 'npm run package'
-      - name: commit package
-        id: package
-        run: |
-          git config --global user.name 'Github Actions'
-          git config --global user.email 'github-actions@users.noreply.github.com'
-          git diff --quiet && git diff --staged --quiet || (git commit -am 'compiled action' && git push)
-          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+#      - name: Install dependencies
+#        run: 'npm install'
+#      - name: compile
+#        run: 'npm run package'
+#      - name: commit package
+#        id: package
+#        run: |
+#          git config --global user.name 'Github Actions'
+#          git config --global user.email 'github-actions@users.noreply.github.com'
+#          git diff --quiet && git diff --staged --quiet || (git commit -am 'compiled action' && git push)
+#          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: release
         uses: ./
         id: semver

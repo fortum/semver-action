@@ -1,25 +1,39 @@
 const core = require("@actions/core");
-const github = require("@actions/github");
 
-async function getLastTagOrDefault(prefix) {
+async function getLastTagOrDefault(client, params) {
+    core.debug(`getLastTagOrDefault(${JSON.stringify(params)})`);
     const defaultTag = "0.0.0";
-    const tagPrefix = prefix || "";
+    const tagPrefix = params.prefix || "";
     const tagPattern = new RegExp(`^${tagPrefix}[0-9]+.[0-9]+.[0-9]+$`);
-    const token = core.getInput('repo-token', {required: true});
-    const client = github.getOctokit(token);
 
     const tags = await client.rest.repos.listTags({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
+        owner: params.owner,
+        repo: params.repo,
         per_page: 100,
     });
+
+    core.debug(`tags response: ${JSON.stringify(tags)}`);
 
     const candidates = tags.data
         .filter(tag => tagPattern.test(tag.name))
         .map(tag => tag.name);
 
-    const lastTag = candidates[0] || `${tagPrefix}${defaultTag}`;
-    console.log(lastTag);
+    core.debug(`tags matching prefix: ${JSON.stringify(candidates)}`);
+
+    return candidates[0] || `${tagPrefix}${defaultTag}`;
 }
 
-getLastTagOrDefault();
+function extractBranch(gitRef) {
+    return gitRef.replace(new RegExp("^refs/heads|\/", "g"), "");
+}
+
+async function tag(client, params) {
+    await client.rest.git.createRef({
+        owner: params.owner,
+        repo: params.repo,
+        ref: `refs/tags/${params.version}`,
+        sha: params.sha
+    });
+}
+
+module.exports = { getLastTagOrDefault, extractBranch, tag };

@@ -1,7 +1,7 @@
-name: Release
+name: PR
 
 on:
-  push:
+  pull_request:
     branches:
       - master
     paths-ignore:
@@ -20,22 +20,14 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: test
-        run: npm install
+        run: npm test
       - name: compile
         run: npm run package
-      - name: commit package
-        id: package
-        run: |
-          git config --global user.name 'Github Actions'
-          git config --global user.email 'github-actions@users.noreply.github.com'
-          git diff --quiet && git diff --staged --quiet || (git commit -am 'compiled action' && git push)
-          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-      - name: release
+      - name: run action
         uses: ./
         id: semver
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           version-prefix: v
-          release: true
-          sha: ${{ steps.package.outputs.sha }}
+          release: false
           major-version: 2

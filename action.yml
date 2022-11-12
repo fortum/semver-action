@@ -12,6 +12,10 @@ inputs:
     required: false
     default: ''
     description: 'The prefix to be used on tags. i.e. v for v1.0.1'
+  major-version:
+    required: false
+    default: '0'
+    description: 'Allows to control how the next version is calculated, if set to a value > than the current major version, the next version will be major-version.0.0'
   sha:
     required: false
     default: ''

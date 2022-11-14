@@ -2,6 +2,7 @@ const { getLastTagOrDefault, extractBranch } = require('./git');
 
 const listTagsMock = jest.fn();
 const client = {
+    paginate: () => listTagsMock(),
     rest: {
         repos: {
             listTags: listTagsMock
@@ -18,7 +19,7 @@ describe("getLastTagOrDefault", () => {
 
     it("should return the default tag when no tag exists", async () => {
         // given
-        listTagsMock.mockReturnValue({data: []});
+        listTagsMock.mockReturnValue([]);
         // when
         const result = await getLastTagOrDefault(client, config);
         // then
@@ -27,7 +28,7 @@ describe("getLastTagOrDefault", () => {
 
     it("should return the default tag when no tag exists with the given prefix", async () => {
         // given
-        listTagsMock.mockReturnValue({data: [{name: "v1.22.0"}]});
+        listTagsMock.mockReturnValue([{name: "v1.22.0"}]);
         // when
         const result = await getLastTagOrDefault(client, {...config, prefix: "prefix-"});
         // then
@@ -36,7 +37,7 @@ describe("getLastTagOrDefault", () => {
 
     it("should return the latest tag when tags exist with the given prefix", async () => {
         // given
-        listTagsMock.mockReturnValue({data: [{name: "v1.22.0"}, {name: "v1.21.0"}]});
+        listTagsMock.mockReturnValue([{name: "v1.22.0"}, {name: "v1.21.0"}]);
         // when
         const result = await getLastTagOrDefault(client, {...config, prefix: "v"});
         // then
@@ -45,7 +46,7 @@ describe("getLastTagOrDefault", () => {
 
     it("should return the latest no-prefix tag when no-prefix tags exist", async () => {
         // given
-        listTagsMock.mockReturnValue({data: [{name: "1.22.0"}, {name: "1.21.0"}]});
+        listTagsMock.mockReturnValue([{name: "1.22.0"}, {name: "1.21.0"}]);
         // when
         const result = await getLastTagOrDefault(client, config);
         // then
@@ -54,7 +55,7 @@ describe("getLastTagOrDefault", () => {
 
     it("should ignore non-semver tags", async () => {
         // given
-        listTagsMock.mockReturnValue({data: [{name: "v1.23.Ö"}, {name: "v1.22.0"}, {name: "v1.21.0"}]});
+        listTagsMock.mockReturnValue([{name: "v1.23.Ö"}, {name: "v1.22.0"}, {name: "v1.21.0"}]);
         // when
         const result = await getLastTagOrDefault(client, {...config, prefix: "v"});
         // then
@@ -63,7 +64,7 @@ describe("getLastTagOrDefault", () => {
 
     it("should select the last tag matching the given prefix", async () => {
         // given
-        listTagsMock.mockReturnValue({data: [{name: "lambdas-0.3.0"}, {name: "1.22.0"}, {name: "lambdas-0.2.0"}]});
+        listTagsMock.mockReturnValue([{name: "lambdas-0.3.0"}, {name: "1.22.0"}, {name: "lambdas-0.2.0"}]);
 
         // when
         const resultService = await getLastTagOrDefault(client, config);

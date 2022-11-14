@@ -9589,7 +9589,7 @@ async function getLastTagOrDefault(client, params) {
     const tagPrefix = params.prefix || "";
     const tagPattern = new RegExp(`^${tagPrefix}[0-9]+.[0-9]+.[0-9]+$`);
 
-    const tags = await client.rest.repos.listTags({
+    const tags = await client.paginate(client.rest.repos.listTags, {
         owner: params.owner,
         repo: params.repo,
         per_page: 100,
@@ -9597,9 +9597,11 @@ async function getLastTagOrDefault(client, params) {
 
     core.debug(`tags response: ${JSON.stringify(tags)}`);
 
-    const candidates = tags.data
+    const candidates = tags
         .filter(tag => tagPattern.test(tag.name))
-        .map(tag => tag.name);
+        .map(tag => tag.name)
+        .sort()
+        .reverse();
 
     core.debug(`tags matching prefix: ${JSON.stringify(candidates)}`);
 

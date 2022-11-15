@@ -1,4 +1,12 @@
 const core = require("@actions/core");
+const {unpackVersion} = require("./util");
+
+function compareTag(a, b) {
+    const [majorA, minorA, patchA] = unpackVersion(a);
+    const [majorB, minorB, patchB] = unpackVersion(b);
+
+    return (majorA - majorB) + (minorA - minorB) + (patchA - patchB);
+}
 
 async function getLastTagOrDefault(client, params) {
     core.debug(`getLastTagOrDefault(${JSON.stringify(params)})`);
@@ -17,7 +25,7 @@ async function getLastTagOrDefault(client, params) {
     const candidates = tags
         .filter(tag => tagPattern.test(tag.name))
         .map(tag => tag.name)
-        .sort()
+        .sort(compareTag)
         .reverse();
 
     core.debug(`tags matching prefix: ${JSON.stringify(candidates)}`);

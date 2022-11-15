@@ -9582,6 +9582,14 @@ module.exports = {run};
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__(2186);
+const {unpackVersion} = __nccwpck_require__(6254);
+
+function compareTag(a, b) {
+    const [majorA, minorA, patchA] = unpackVersion(a);
+    const [majorB, minorB, patchB] = unpackVersion(b);
+
+    return (majorA - majorB) + (minorA - minorB) + (patchA - patchB);
+}
 
 async function getLastTagOrDefault(client, params) {
     core.debug(`getLastTagOrDefault(${JSON.stringify(params)})`);
@@ -9600,7 +9608,7 @@ async function getLastTagOrDefault(client, params) {
     const candidates = tags
         .filter(tag => tagPattern.test(tag.name))
         .map(tag => tag.name)
-        .sort()
+        .sort(compareTag)
         .reverse();
 
     core.debug(`tags matching prefix: ${JSON.stringify(candidates)}`);
@@ -9626,10 +9634,31 @@ module.exports = {getLastTagOrDefault, extractBranch, tag};
 
 /***/ }),
 
+/***/ 6254:
+/***/ ((module) => {
+
+const SEMVER_REGEX = /([0-9]+.[0-9]+.[0-9]+)/
+
+function unpackVersion(tag) {
+    const semver = tag.match(SEMVER_REGEX)[1];
+    if (!semver) {
+        throw `${tag} is not a valid tag!`;
+    }
+
+    return semver.split(".").map(part => parseInt(part));
+}
+
+
+module.exports = {unpackVersion}
+
+
+/***/ }),
+
 /***/ 9554:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__(2186);
+const {unpackVersion} = __nccwpck_require__(6254);
 
 // TODO: remove once no project uses this feature
 function legacyShouldRelease(currentBranch) {
@@ -9655,16 +9684,9 @@ function packVersion(params) {
     return `${versionPrefix}${params.version}${versionPostfix}`;
 }
 
-const SEMVER_REGEX = /([0-9]+.[0-9]+.[0-9]+)/
-
 function calculateNextVersion(params) {
     core.debug(`calculateNextVersion(${JSON.stringify(params)})`);
-    const lastVersion = params.lastTag.match(SEMVER_REGEX)[1];
-    if (!lastVersion) {
-        throw `${params.lastTag} is not a valid tag!`;
-    }
-
-    let [major, minor, patch] = lastVersion.split(".").map(part => parseInt(part));
+    let [major, minor, patch] = unpackVersion(params.lastTag);
 
     let version = [major, ++minor, 0];
     if (params.major && params.major !== "" && parseInt(params.major) > major) {

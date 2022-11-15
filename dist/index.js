@@ -9588,7 +9588,11 @@ function compareTag(a, b) {
     const [majorA, minorA, patchA] = unpackVersion(a);
     const [majorB, minorB, patchB] = unpackVersion(b);
 
-    return (majorA - majorB) + (minorA - minorB) + (patchA - patchB);
+    const major = Math.sign(majorA - majorB) * 100;
+    const minor = Math.sign(minorA - minorB) * 10;
+    const patch = Math.sign(patchA - patchB);
+
+    return major + minor + patch;
 }
 
 async function getLastTagOrDefault(client, params) {

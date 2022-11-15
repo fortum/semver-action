@@ -86,11 +86,20 @@ describe("getLastTagOrDefault", () => {
             {name: "9.9.999"},
             {name: "10.10.9"},
             {name: "10.10.1000"},
+            {name: "v1.9.0"},
+            {name: "v2.0.0"},
+            {name: "v2.1.0"},
+            {name: "v2.2.0"},
         ]);
         // when
-        const result = await getLastTagOrDefault(client, config);
+        let result = await getLastTagOrDefault(client, config);
         // then
         expect(result).toBe("10.10.1000");
+
+        // when
+        result = await getLastTagOrDefault(client, {...config, prefix: "v"});
+        // then
+        expect(result).toBe("v2.2.0");
     });
 });
 

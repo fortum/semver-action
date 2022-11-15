@@ -1,4 +1,5 @@
 const core = require("@actions/core");
+const {unpackVersion} = require("./util");
 
 // TODO: remove once no project uses this feature
 function legacyShouldRelease(currentBranch) {
@@ -24,16 +25,9 @@ function packVersion(params) {
     return `${versionPrefix}${params.version}${versionPostfix}`;
 }
 
-const SEMVER_REGEX = /([0-9]+.[0-9]+.[0-9]+)/
-
 function calculateNextVersion(params) {
     core.debug(`calculateNextVersion(${JSON.stringify(params)})`);
-    const lastVersion = params.lastTag.match(SEMVER_REGEX)[1];
-    if (!lastVersion) {
-        throw `${params.lastTag} is not a valid tag!`;
-    }
-
-    let [major, minor, patch] = lastVersion.split(".").map(part => parseInt(part));
+    let [major, minor, patch] = unpackVersion(params.lastTag);
 
     let version = [major, ++minor, 0];
     if (params.major && params.major !== "" && parseInt(params.major) > major) {

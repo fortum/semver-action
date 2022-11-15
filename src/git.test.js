@@ -76,6 +76,22 @@ describe("getLastTagOrDefault", () => {
         // then
         expect(resultLambda).toBe("lambdas-0.3.0");
     });
+
+    it("should return the latest no-prefix tag when no-prefix tags exist correctly sorting semver", async () => {
+        // given
+        listTagsMock.mockReturnValue([
+            {name: "1.22.0"},
+            {name: "1.200.9"},
+            {name: "1.200.10"},
+            {name: "9.9.999"},
+            {name: "10.10.9"},
+            {name: "10.10.1000"},
+        ]);
+        // when
+        const result = await getLastTagOrDefault(client, config);
+        // then
+        expect(result).toBe("10.10.1000");
+    });
 });
 
 describe("extractBranch", () => {

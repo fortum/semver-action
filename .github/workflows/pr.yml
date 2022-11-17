@@ -24,9 +24,17 @@ jobs:
       - name: compile
         run: npm run package
       - name: run action
+        id: semver
         uses: ./
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           version-prefix: v
           release: false
           major-version: 2
+      - name: debug
+        run: |
+          echo "next-version: ${{ steps.semver.outputs.next-version }}"
+          echo "reference: ${{ steps.semver.outputs.reference }}"
+          echo "major: ${{ steps.semver.outputs.major }}"
+          echo "minor: ${{ steps.semver.outputs.minor }}"
+          echo "patch: ${{ steps.semver.outputs.patch }}"

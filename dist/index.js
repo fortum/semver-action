@@ -9551,11 +9551,14 @@ async function run() {
             branch: currentBranch,
             major: majorVersion
         });
-        core.setOutput("next-version", nextVersion);
-        core.setOutput("reference", isRelease ? nextVersion : currentBranch);
+        core.setOutput("next-version", nextVersion.packedVersion);
+        core.setOutput("major", nextVersion.major);
+        core.setOutput("minor", nextVersion.minor);
+        core.setOutput("patch", nextVersion.patch);
+        core.setOutput("reference", isRelease ? nextVersion.packedVersion : currentBranch);
 
         console.log("Previous version: " + lastTag);
-        console.log("Next version: " + nextVersion);
+        console.log("Next version: " + nextVersion.packedVersion);
 
         if (!isRelease) {
             return;
@@ -9566,7 +9569,7 @@ async function run() {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             sha: core.getInput("sha") === "" ? github.context.sha : core.getInput("sha"),
-            version: nextVersion
+            version: nextVersion.packedVersion
         });
     } catch (error) {
         core.setFailed(error.message);
@@ -9697,12 +9700,19 @@ function calculateNextVersion(params) {
         version = [parseInt(params.major), 0, 0];
     }
 
-    return packVersion({
+    const packedVersion =  packVersion({
         version: version.join("."),
         shouldRelease: params.shouldRelease,
         prefix: params.prefix,
         branch: params.branch
     });
+
+    return {
+        packedVersion: packedVersion,
+        major: version[0],
+        minor: version[1],
+        patch: version[2]
+    }
 }
 
 module.exports = {shouldRelease, calculateNextVersion};

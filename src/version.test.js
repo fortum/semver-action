@@ -57,26 +57,51 @@ describe("shouldRelease", () => {
 
     it("should calculate then next version for release", () => {
         const result = calculateNextVersion(params);
-        expect(result).toBe("v1.22.0");
+        expect(result).toEqual({
+            packedVersion: "v1.22.0",
+            major: 1,
+            minor: 22,
+            patch: 0
+        });
     });
 
     it("should calculate then next version for a branch", () => {
         const result = calculateNextVersion({...params, shouldRelease: false, branch: "feature"});
-        expect(result).toBe("feature-v1.22.0-SNAPSHOT");
+        expect(result).toEqual({
+            packedVersion: "feature-v1.22.0-SNAPSHOT",
+            major: 1,
+            minor: 22,
+            patch: 0
+        });
     });
 
     it("should bump the major version when the current major version is lower than the one configured", () => {
         const result = calculateNextVersion({...params, major: "2"});
-        expect(result).toBe("v2.0.0");
+        expect(result).toEqual({
+            packedVersion: "v2.0.0",
+            major: 2,
+            minor: 0,
+            patch: 0
+        });
     });
 
     it("should bump the minor version when the current major version is equal to the one configured", () => {
         const result = calculateNextVersion({...params, major: "1"});
-        expect(result).toBe("v1.22.0");
+        expect(result).toEqual({
+            packedVersion: "v1.22.0",
+            major: 1,
+            minor: 22,
+            patch: 0
+        });
     });
 
     it("should bump the minor version when the current major version is higher than the one configured", () => {
         const result = calculateNextVersion({...params, major: "0"});
-        expect(result).toBe("v1.22.0");
+        expect(result).toEqual({
+            packedVersion: "v1.22.0",
+            major: 1,
+            minor: 22,
+            patch: 0
+        });
     });
 });

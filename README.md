@@ -32,6 +32,9 @@ When `release=false` the next version will be prefixed with the branch name and 
 |--------------|--------------------------------------------------------------------------------------|
 | next-version | the next version calculated based on the previous version (tag) and the inputs above |
 | reference    | The tag name if release=true otherwise the branch name                               |
+| major        | The version's major part (e.g. `1` in `v1.2.3`)                                      |
+| minor        | The version's minor part (e.g. `2` in `v1.2.3`)                                      |
+| patch        | The version's patch part (e.g. `3` in `v1.2.3`)                                      |
 
 ## Examples
 

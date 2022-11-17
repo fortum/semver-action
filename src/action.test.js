@@ -6,6 +6,12 @@ const {getLastTagOrDefault, extractBranch, tag} = require("./git");
 jest.mock("./version");
 const {shouldRelease, calculateNextVersion} = require("./version");
 
+const nextVersion = {
+    packedVersion: "1.0.0-SNAPSHOT",
+    major: 1,
+    minor: 0,
+    patch: 0
+};
 
 
 describe("semver-action", () => {
@@ -19,7 +25,7 @@ describe("semver-action", () => {
         // given
         const params = {
             branch: "feature",
-            nextVersion: "1.0.0-SNAPSHOT"
+            nextVersion: nextVersion
         }
         const outputs = {};
         mock(params, outputs);
@@ -29,7 +35,10 @@ describe("semver-action", () => {
 
         // then
         expect(outputs.reference).toBe(params.branch);
-        expect(outputs["next-version"]).toBe(params.nextVersion);
+        expect(outputs["next-version"]).toBe(params.nextVersion.packedVersion);
+        expect(outputs["major"]).toBe(params.nextVersion.major);
+        expect(outputs["minor"]).toBe(params.nextVersion.minor);
+        expect(outputs["patch"]).toBe(params.nextVersion.patch);
         expect(tag).toBeCalledTimes(0);
     });
 
@@ -37,7 +46,7 @@ describe("semver-action", () => {
         // given
         const params = {
             branch: "feature",
-            nextVersion: "1.0.0-SNAPSHOT",
+            nextVersion: nextVersion,
             pr: true
         }
         const outputs = {};
@@ -48,7 +57,10 @@ describe("semver-action", () => {
 
         // then
         expect(outputs.reference).toBe(params.branch);
-        expect(outputs["next-version"]).toBe(params.nextVersion);
+        expect(outputs["next-version"]).toBe(params.nextVersion.packedVersion);
+        expect(outputs["major"]).toBe(params.nextVersion.major);
+        expect(outputs["minor"]).toBe(params.nextVersion.minor);
+        expect(outputs["patch"]).toBe(params.nextVersion.patch);
         expect(tag).toBeCalledTimes(0);
     });
 
@@ -56,7 +68,7 @@ describe("semver-action", () => {
         // given
         const params = {
             branch: "master",
-            nextVersion: "1.0.0",
+            nextVersion: {...nextVersion, packedVersion: "1.0.0"},
             shouldRelease: true
         }
         const outputs = {};
@@ -66,11 +78,14 @@ describe("semver-action", () => {
         await run();
 
         // then
-        expect(outputs.reference).toBe(params.nextVersion);
-        expect(outputs["next-version"]).toBe(params.nextVersion);
+        expect(outputs.reference).toBe(params.nextVersion.packedVersion);
+        expect(outputs["next-version"]).toBe(params.nextVersion.packedVersion);
+        expect(outputs["major"]).toBe(params.nextVersion.major);
+        expect(outputs["minor"]).toBe(params.nextVersion.minor);
+        expect(outputs["patch"]).toBe(params.nextVersion.patch);
         expect(tag).toBeCalledTimes(1);
         expect(tag).toBeCalledWith(expect.anything(), expect.objectContaining({
-            version: params.nextVersion,
+            version: params.nextVersion.packedVersion,
             sha: 'default'
         }));
     });
@@ -79,7 +94,7 @@ describe("semver-action", () => {
         // given
         const params = {
             branch: "master",
-            nextVersion: "1.0.0",
+            nextVersion: {...nextVersion, packedVersion: "1.0.0"},
             shouldRelease: true,
             inputs: {
                 sha: "xyz"
@@ -92,11 +107,14 @@ describe("semver-action", () => {
         await run();
 
         // then
-        expect(outputs.reference).toBe(params.nextVersion);
-        expect(outputs["next-version"]).toBe(params.nextVersion);
+        expect(outputs.reference).toBe(params.nextVersion.packedVersion);
+        expect(outputs["next-version"]).toBe(params.nextVersion.packedVersion);
+        expect(outputs["major"]).toBe(params.nextVersion.major);
+        expect(outputs["minor"]).toBe(params.nextVersion.minor);
+        expect(outputs["patch"]).toBe(params.nextVersion.patch);
         expect(tag).toBeCalledTimes(1);
         expect(tag).toBeCalledWith(expect.anything(), expect.objectContaining({
-            version: params.nextVersion,
+            version: params.nextVersion.packedVersion,
             sha: params.inputs.sha
         }));
     });
@@ -132,6 +150,6 @@ function mock(params, outputs) {
     // functions
     extractBranch.mockImplementation(() => params.branch);
     getLastTagOrDefault.mockImplementation(() => params.previousVersion || "0.0.0");
-    calculateNextVersion.mockImplementation(() => params.nextVersion || "0.1.0");
+    calculateNextVersion.mockImplementation(() => params.nextVersion || nextVersion);
     shouldRelease.mockImplementation(() => params.shouldRelease || false);
 }

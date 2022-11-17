@@ -34,12 +34,19 @@ function calculateNextVersion(params) {
         version = [parseInt(params.major), 0, 0];
     }
 
-    return packVersion({
+    const packedVersion =  packVersion({
         version: version.join("."),
         shouldRelease: params.shouldRelease,
         prefix: params.prefix,
         branch: params.branch
     });
+
+    return {
+        packedVersion: packedVersion,
+        major: version[0],
+        minor: version[1],
+        patch: version[2]
+    }
 }
 
 module.exports = {shouldRelease, calculateNextVersion};

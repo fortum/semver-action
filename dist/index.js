@@ -9628,11 +9628,21 @@ function extractBranch(gitRef) {
 }
 
 async function tag(client, params) {
+    // add tag
     await client.rest.git.createRef({
         owner: params.owner,
         repo: params.repo,
         ref: `refs/tags/${params.version}`,
         sha: params.sha
+    });
+
+    // create GitHub release
+    await client.rest.repos.createRelease({
+        owner: params.owner,
+        repo: params.repo,
+        tag_name: params.version,
+        name: `Version ${params.version}`,
+        body: ""
     });
 }
 

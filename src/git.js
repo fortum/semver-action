@@ -2,8 +2,8 @@ const core = require("@actions/core");
 const {unpackVersion} = require("./util");
 
 function compareTag(a, b) {
-    const [majorA, minorA, patchA] = unpackVersion(a);
-    const [majorB, minorB, patchB] = unpackVersion(b);
+    const [majorA, minorA, patchA] = unpackVersion(a.name);
+    const [majorB, minorB, patchB] = unpackVersion(b.name);
 
     const major = Math.sign(majorA - majorB) * 100;
     const minor = Math.sign(minorA - minorB) * 10;
@@ -28,13 +28,15 @@ async function getLastTagOrDefault(client, params) {
 
     const candidates = tags
         .filter(tag => tagPattern.test(tag.name))
-        .map(tag => tag.name)
         .sort(compareTag)
         .reverse();
 
     core.debug(`tags matching prefix: ${JSON.stringify(candidates)}`);
 
-    return candidates[0] || `${tagPrefix}${defaultTag}`;
+    const tag = candidates[0]?.name || `${tagPrefix}${defaultTag}`;
+    const sha = candidates[0]?.commit?.sha || "";
+
+    return {tag, sha};
 }
 
 function extractBranch(gitRef) {

@@ -13,6 +13,8 @@ Multiple version series can be applied to the same repository, as long as you se
 
 If no tag exists, `0.1.0` will be the initial version.
 
+If a matching tag already exists on the commit, no new version will be calculated.   
+
 When `release=false` the next version will be prefixed with the branch name and postfixed with `-SNAPSHOT`
 
 

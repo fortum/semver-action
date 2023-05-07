@@ -17,8 +17,7 @@ const nextVersion = {
 describe("semver-action", () => {
 
     beforeEach(() => {
-        getLastTagOrDefault.mockImplementation(() => "0.0.0");
-
+        getLastTagOrDefault.mockImplementation(() => { return {tag: "0.0.0", sha: "abc"}});
     });
 
     it("should calculate the version for a branch and not tag", async () => {
@@ -118,6 +117,32 @@ describe("semver-action", () => {
             sha: params.inputs.sha
         }));
     });
+
+    it("should NOT tag when the default sha is already tagged", async () => {
+        // given
+        const params = {
+            branch: "master",
+            nextVersion: {...nextVersion, packedVersion: "1.0.0"},
+            previousVersion: {tag: "1.0.0", sha: "default"},
+            shouldRelease: true,
+            inputs: {
+                sha: "default"
+            }
+        }
+        const outputs = {};
+        mock(params, outputs);
+
+        // when
+        await run();
+
+        // then
+        expect(outputs.reference).toBe(params.nextVersion.packedVersion);
+        expect(outputs["next-version"]).toBe(params.nextVersion.packedVersion);
+        expect(outputs["major"]).toBe(params.nextVersion.major);
+        expect(outputs["minor"]).toBe(params.nextVersion.minor);
+        expect(outputs["patch"]).toBe(params.nextVersion.patch);
+        expect(tag).toBeCalledTimes(0);
+    });
 });
 
 function mockInput(params) {
@@ -149,7 +174,13 @@ function mock(params, outputs) {
 
     // functions
     extractBranch.mockImplementation(() => params.branch);
-    getLastTagOrDefault.mockImplementation(() => params.previousVersion || "0.0.0");
+    getLastTagOrDefault.mockImplementation(() => {
+        if (params.previousVersion) {
+            return {tag: params.previousVersion.tag, sha: params.previousVersion.sha};
+        } else {
+            return {tag: "0.0.0", sha: ""};
+        }
+    });
     calculateNextVersion.mockImplementation(() => params.nextVersion || nextVersion);
     shouldRelease.mockImplementation(() => params.shouldRelease || false);
 }

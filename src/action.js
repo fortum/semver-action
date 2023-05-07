@@ -31,13 +31,17 @@ async function run() {
         // determines if the code should be released
         const isRelease = shouldRelease(currentBranch);
 
+        // determines which commit (identified by its sha) should be tagged
+        const sha = core.getInput("sha") === "" ? github.context.sha : core.getInput("sha");
+
         // calculates the next version
         const nextVersion = calculateNextVersion({
             lastTag: lastTag,
             shouldRelease: isRelease,
             prefix: prefix,
             branch: currentBranch,
-            major: majorVersion
+            major: majorVersion,
+            sha: sha
         });
         core.setOutput("next-version", nextVersion.packedVersion);
         core.setOutput("major", nextVersion.major);
@@ -45,10 +49,15 @@ async function run() {
         core.setOutput("patch", nextVersion.patch);
         core.setOutput("reference", isRelease ? nextVersion.packedVersion : currentBranch);
 
-        console.log("Previous version: " + lastTag);
+        console.log("Previous version: " + lastTag.tag);
         console.log("Next version: " + nextVersion.packedVersion);
 
         if (!isRelease) {
+            return;
+        }
+
+        if (sha === lastTag.sha) {
+            console.info("This commit is already tagged")
             return;
         }
 

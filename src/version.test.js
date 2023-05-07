@@ -47,9 +47,9 @@ describe("shouldRelease", () => {
     });
 });
 
-describe("shouldRelease", () => {
+describe("calculateNextVersion", () => {
     const params = {
-        lastTag: "v1.21.0",
+        lastTag: {tag: "v1.21.0", sha: "abc"},
         shouldRelease: true,
         prefix: "v",
         branch: "master"
@@ -101,6 +101,16 @@ describe("shouldRelease", () => {
             packedVersion: "v1.22.0",
             major: 1,
             minor: 22,
+            patch: 0
+        });
+    });
+
+    it("should not bump anything when the sha is already tagged", () => {
+        const result = calculateNextVersion({...params, sha: params.lastTag.sha});
+        expect(result).toEqual({
+            packedVersion: params.lastTag.tag,
+            major: 1,
+            minor: 21,
             patch: 0
         });
     });

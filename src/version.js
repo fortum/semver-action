@@ -27,11 +27,16 @@ function packVersion(params) {
 
 function calculateNextVersion(params) {
     core.debug(`calculateNextVersion(${JSON.stringify(params)})`);
-    let [major, minor, patch] = unpackVersion(params.lastTag);
+    let [major, minor, patch] = unpackVersion(params.lastTag.tag);
 
-    let version = [major, ++minor, 0];
-    if (params.major && params.major !== "" && parseInt(params.major) > major) {
-        version = [parseInt(params.major), 0, 0];
+    let version = [major, minor, patch];
+
+    // in case the sha to be versioned is not the same from the last version, then we calculate a new version
+    if (params.sha !== params.lastTag.sha) {
+        version = [major, ++minor, 0];
+        if (params.major && params.major !== "" && parseInt(params.major) > major) {
+            version = [parseInt(params.major), 0, 0];
+        }
     }
 
     const packedVersion =  packVersion({
